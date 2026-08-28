@@ -1,0 +1,35 @@
+{
+    "user":[
+        {
+            "id":"1",
+            "name":"John",
+            "surname":"Doe",
+            "email":"user@email.com",
+            "issuedBook":"1",
+            "issueDate":"04/01/2026",
+            "returnDate":"05/01/2027",
+            "subscriptionType":"Premium",
+            "subscriptionDate":"04/01/2026"
+        },
+        {
+            "id":"2",
+            "name":"Jane",
+            "surname":"Doe",
+            "email":"user@email.com",
+            "issuedBook":"2",
+            "issueDate":"04/06/2026",
+            "returnDate":"05/01/2027",
+            "subscriptionType":"Basic",
+            "subscriptionDate":"04/06/2026"
+        },
+        { "id":"3",
+            "name":"Jane",
+            "surname":"Doe",
+            "email":"user@email.com",
+            "issuedBook":"3",
+            "issueDate":"21/08/2025",
+            "returnDate":"01/09/2026",
+            "subscriptionType":"Classy",
+            "subscriptionDate":"21/08/2025"}
+    ]
+}
