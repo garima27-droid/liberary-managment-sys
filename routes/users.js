@@ -1,28 +1,8 @@
 const express = require("express");
-const {users} = require ("./data/users.json")
+const {users} = require ("../data/users.json")
 
 
-// importing routers
-const usersRouter = require("./routes/users");
-const booksRouter = require("./routes/books");
-
-
-const app = express();
-
-const PORT = 8081;
-
-app.use(express.json());
-
-app.get("/",(req,res)=>{
-    res.status(200).json({
-        message: "Home page:-)"
-    })
-})
-
-
-app.use("/users",usersRouter);
-app.use("/books",booksRouter);
-
+const router = express.Router();
 /**
  * Route: /users
  * Method:GET
@@ -31,7 +11,7 @@ app.use("/books",booksRouter);
  * Parameters: None
  */
 
-app.get('/users',(req,res)=>{
+router.get('/',(req,res)=>{
   res.status(200).json({
     success: true,
     data: users
@@ -46,7 +26,7 @@ app.get('/users',(req,res)=>{
  * Parameters: id
  */
 
-app.get('/users/:id',(req,res)=>{
+router.get('/:id',(req,res)=>{
  // for a specific user we use below 2 lines here we are finding id by users 
     const {id} =req.params;
     const user = users.find((each)=>each.id === id)
@@ -70,7 +50,7 @@ app.get('/users/:id',(req,res)=>{
  * Access: Public
  * Parameters: none
  */
-app.post('/users',(req,res)=>{
+router.post('/',(req,res)=>{
   // req.body should have the following fields
     const {id,name,surname,email,subscriptionType,subscriptionDate}=req.body;     // req.body is a parameter
 
@@ -110,7 +90,7 @@ app.post('/users',(req,res)=>{
  * Parameters: ID
  */
 
- app.put('/users/:id',(req,res)=>{
+ router.put('/:id',(req,res)=>{
      const {id} = req.params;
      const {data}= req.body;
 
@@ -153,7 +133,7 @@ app.post('/users',(req,res)=>{
  * Parameters: ID
  */
 
-app.delete('/users/:id',(req,res)=>{
+router.delete('/:id',(req,res)=>{
    const {id} = req.params;
 
   //  Check if the user exists
@@ -173,15 +153,74 @@ app.delete('/users/:id',(req,res)=>{
     data: updatedUsers,
     message: "UserDeleted Successfully "
   })
-})
+});
 
+/**
+ * Route: /users/subscription-details/id:
+ * Method:DELETE
+ * Description: Get all the subscription-details of a user by their ID
+ * Access: Public
+ * Parameters: ID
+ */
+router.get('/subscription-details/:id',(req,res)=>{
+   const {id} = req.params;
 
-// app.all('*',(req,res)=>{                 // it will handle any other methods
-//  res.status(500).json({
-//   message:"Not Build Yet"
-//  })
-// })
-  app.listen(PORT,()=>{
-    console.log(`Server listning and running on http://localhost:${PORT}`);
+  //  Check if the user exists
+  const user = users.find((each)=>each.id === id)
+  if(!user){
+    return res.status(404).json({
+      success: false,
+      message: `User not found for id: ${id}`
+    })
+  }
+// Extract the subscription details
+const getDateInDays = (data ='')=>{
+  let date;
+  if(data){
+    date = new Date(data);
+  }
+  else{
+    date = new Date();
+  }
+
+// To calcutale days
+let days = Math.floor (date.getTime() /(1000 * 60 *60 *24));
+return days;
+}
+const subscriptionType = (date) =>{
+  if(user.subscriptionType ==="Basic"){
+    date = date + 90
+  }else if(user.subscriptionType ==="Standard"){
+    date = date + 180
+  } if(user.subscriptionType ==="Premium"){
+    date = date + 365
+  }
+  return date;
+}
+
+// Subscription Expiration Calculation
+// January 1, 1970 UTC // milliseconds
+
+let returnDate = getDateInDays (user.returnDate);
+let currentDate = getDateInDays();
+let subscriptionDate = getDateInDays(user.subscriptionDate)
+let subscriptionExpiration = subscriptionType(subscriptionDate)
+  
+const data ={
+  ...user,
+  subscriptionExpired: subscriptionExpiration < currentDate,
+  subscriptionDaysLeft: subscriptionExpiration - currentDate,
+  daysLeftForExpiration: returnDate - currentDate,
+  returnDate: returnDate < currentDate ? "Book is overdue" : returnDate,
+  fine: returnDate < currentDate ? subscriptionExpiration <= currentDate ? 200: 100: 0
+}
+  res.status(200).json({
+    success: true,
+    data: data
     
   })
+});
+
+// we need to export
+module.exports = router;
+// This is the users router for the liberary managment sys
