@@ -116,7 +116,7 @@ app.post('/users',(req,res)=>{
 
     // Check if the user exists
     const user = users.find((each)=>each.id === id)   // if we not getting any user then say below lines
-    if(!users){
+    if(!user){
       return res.statusCode(404).json({
         success: false,
         message: `User not found for id: ${id}`
